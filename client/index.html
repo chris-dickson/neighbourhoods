@@ -3,12 +3,58 @@
 <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="style/style.css">
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
     <script type="text/javascript" src="scripts/extern/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjF_6ijdjVwvlzGPJQMCLa3vkD0LmNPJk&libraries=visualization"></script>
-    <script type="text/javascript" src="scripts/routes.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.6.0/bootstrap-table.min.js"></script>
     <script type="text/javascript" src="scripts/main.js"></script>
+    <script type="text/javascript" src="scripts/process_each.js"></script>
+
+
+
+
+
 </head>
 <body>
-<div id="map-canvas"/>
+    <div id="controls-canvas">
+        <table data-toggle="table" data-url="neighbourhoods" data-cache="false" data-height="150">
+            <thead>
+            <tr>
+                <th data-field="id">ID</th>
+                <th data-field="lat">Lat</th>
+                <th data-field="lon">Lon</th>
+                <th data-field="name">Name</th>
+                <th data-field="searchString">Search String</th>
+            </tr>
+            </thead>
+        </table>
+        <button class="btn btn-default btn-small" id="addLocations">+</button>
+    </div>
+
+    <div id="addLocationsModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Add Locations</h4>
+                </div>
+                <div class="modal-body">
+                    <span>Add a list of locations.   One location per line.</span>
+                    <textarea id="locationsTextarea" class="add-locations-textarea"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="onAddLocationsBtn" data-dismiss="modal">Add</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
+    <div id="map-canvas"/>
+
+
 </body>
 </html>

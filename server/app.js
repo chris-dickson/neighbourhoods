@@ -3,15 +3,19 @@ var bodyParser = require('body-parser');
 var url = require('url');
 var config = require('./modules/config');
 var db_init = require('./modules/db_init');
-
+var Neighbourhoods = require('./modules/rest/neighbourhoods');
 
 
 // Setup server
 var app = express();
-app.use(express.static('C:/workspace/NeighbourhoodDirections/client'));
-app.use(bodyParser());
+
+app.use(express.static('client'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended : true}));
+
 var server = app.listen(config.port, function() {
 	console.log('Listening on port %d', server.address().port);
+
 	console.log('Initializing database');
 	db_init.initialize(function() {
 		console.log('\tsuccess!');
@@ -20,6 +24,17 @@ var server = app.listen(config.port, function() {
 		console.log(err);
 	});
 });
+
+
+app.get('/neighbourhoods',function(req,res) {
+	var defaultResponse = [];
+	Neighbourhoods.getAll(function(rows) {
+		res.end(JSON.stringify(rows))
+	}, function(err) {
+		console.warn(err);
+		res.end(JSON.stringify(defaultResponse));
+	});
+})
 //
 //// Setup routes
 //app.get('/stations', function(req,res) {

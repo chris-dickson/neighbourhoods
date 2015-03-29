@@ -1,3 +1,13 @@
 html { height: 100% }
 body { height: 100%; margin: 0; padding: 0 }
-#map-canvas { height: 100% }
+#map-canvas {
+    height:50%;
+}
+#controls-canvas {
+    background-color:#efefef
+}
+
+.add-locations-textarea {
+    width:100%;
+    height:200px;
+}

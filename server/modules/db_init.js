@@ -1,12 +1,13 @@
 var connectionPool = require('./db/connection');
 var db_utils = require('./db/db_utils');
+var Neighbourhoods = require('./rest/neighbourhoods');
 
 var _getTableSpecs = function() {
 	var tables = [];
 	var nonNull = true;
 	// Image data table
 	var neighbourhoods = {
-		name : 'neighbourhoods',
+		name : Neighbourhoods.TABLE_NAME,
 		columns : [	db_utils.createColumnString('id','varchar(255)',nonNull),
 			db_utils.createColumnString('lat','DECIMAL(10,8)',nonNull),
 			db_utils.createColumnString('lon','DECIMAL(11,8)',nonNull),

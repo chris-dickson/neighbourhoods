@@ -2,11 +2,27 @@
  * Created by cdickson on 8/24/14.
  */
 var directionsDisplay;
-var directionsService = new google.maps.DirectionsService();
 var map;
-var stationList = [];
 
-var initialize = function() {
+var geocodeLocations = function(places,success,error) {
+
+	var placesMap = {};
+
+	function onComplete() {
+		success(placesMap);
+	}
+
+	function onError(err) {
+		if (error) error(err);
+	}
+
+	Process.each(places,function(place,processNext) {
+		// TODO: contact google for the geocode
+		processNext();
+	},onComplete);
+}
+
+var initializeMap = function() {
 	directionsDisplay = new google.maps.DirectionsRenderer();
 
 	var styleArray = [
@@ -34,46 +50,28 @@ var initialize = function() {
 
 	var toronto = new google.maps.LatLng(43.6753189,-79.4236684);
 	var mapOptions = {
-		zoom:8,
+		zoom:12,
 		center: toronto
 	};
 
 	map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 	map.setOptions({styles : styleArray});
 	directionsDisplay.setMap(map);
-
-	$.ajax({
-		url : 'http://localhost:8080/stations',
-		complete : function(response) {
-			stationList = JSON.parse(response.responseText);
-
-			for (var i = 0; i < stationList.length; i++) {
-				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(stationList[i].lat, stationList[i].lon),
-					title: stationList[i].name
-				});
-				marker.setMap(map);
-			}
-			plotRoute(7000,7001,true);
-		}
-	});
-};
-
-var heatmapPoints = function(points) {
-	var googlePoints = [];
-	for (var i = 0; i < points.length; i++) {
-		googlePoints.push(new google.maps.LatLng(points[i].lat, points[i].lon));
-	}
-	var googleArray = new google.maps.MVCArray(googlePoints);
-	heatmap = new google.maps.visualization.HeatmapLayer({
-		data: googleArray
-	});
-	heatmap.setMap(map);
 }
 
-var plotRoute = function(sourceId, destinationId, normalized) {
-	getRoute(sourceId,destinationId,normalized, function(sourceid, destid, points) {
-		heatmapPoints(points);
+var initialize = function() {
+	initializeMap();
+
+	$('#addLocations').click(function() {
+		$('#addLocationsModal').modal()
+	});
+
+	$('#onAddLocationsBtn').click(function() {
+		var placesStr = $('#locationsTextarea').val();
+		var places = placesStr.split('\n');
+		geocodeLocations(places,function(placeMap) {
+			// TODO: save in db
+		});
 	});
 };
 

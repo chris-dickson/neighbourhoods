@@ -1,9 +1,13 @@
 {
-	"name": "bikeshare-to",
-	"description": "Bikeshare Toronto Express App",
-	"version": "0.0.1",
-	"private": true,
-	"dependencies": {
-		"express": "4.x"
-	}
+  "name": "neighbourhoods",
+  "description": "Neighbourhood TTC directions",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "express": "^4.12.3",
+    "body-parser": "^1.12.2",
+    "mysql": "^2.6.1",
+    "generic-pool": "^2.2.0"
+  }
 }
