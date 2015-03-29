@@ -51,10 +51,31 @@ var initialize = function() {
 	$('#onAddLocationsBtn').click(function() {
 		var placesStr = $('#locationsTextarea').val();
 		var places = placesStr.split('\n');
-		Geocoder.geocodeList(places,function(placeMap) {
-			// TODO: save in db
-			var ibreak = 0;
-			ibreak++;
+
+		var torontoBounds = {
+			northeast : {
+				lat : 43.8554579,
+				lng : -79.1161932
+			},
+			southwest : {
+				lat : 43.5810846,
+				lng : -79.639219
+			}
+		};
+
+		Geocoder.geocodeList(places,torontoBounds,function(placeMap) {
+			$.ajax({
+				method: 'POST',
+				url: '/neighbourhoods',
+				data: placeMap
+			}).then(
+				function() {
+					// TODO: update table
+				},
+				function(err) {
+					// TODO:  err?
+				}
+			)
 		});
 	});
 };

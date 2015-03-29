@@ -37,8 +37,17 @@ app.get('/neighbourhoods',function(req,res) {
 	});
 });
 
+app.post('/neighbourhoods',function(req,res) {
+	var placeMap = req.body;
+	Neighbourhoods.add(placeMap, function() {
+		res.send('success');
+	}, function(err) {
+		res.status(500).send(err);
+	});
+});
+
 app.get('/geocoderkey',function(req,res) {
-	res.end(JSON.string(Geocoder.getKey()));
+	res.end(JSON.stringify(Geocoder.getKey()));
 });
 //
 //// Setup routes

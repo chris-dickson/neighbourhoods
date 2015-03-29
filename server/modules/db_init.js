@@ -10,7 +10,7 @@ var _getTableSpecs = function() {
 		name : Neighbourhoods.TABLE_NAME,
 		columns : [	db_utils.createColumnString('id','varchar(255)',nonNull),
 			db_utils.createColumnString('lat','DECIMAL(10,8)',nonNull),
-			db_utils.createColumnString('lon','DECIMAL(11,8)',nonNull),
+			db_utils.createColumnString('lng','DECIMAL(11,8)',nonNull),
 			db_utils.createColumnString('name','varchar(255)',nonNull),
 			db_utils.createColumnString('searchString','varchar(255)',nonNull)],
 		primaryKey : 'id'
