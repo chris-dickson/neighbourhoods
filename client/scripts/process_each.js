@@ -1,17 +1,18 @@
-var Process = {
-	activeAsyncProcesses : {},
-	each : function (array, iterator, onComplete) {
-		var id = uuid.generate();
-		this.activeAsyncProcesses[id] = true;
+var Process = (function () {
+	var activeAsyncProcesses = {};
+
+	var each = function (array, iterator, onComplete) {
+		var id = UUID.generate();
+		activeAsyncProcesses[id] = true;
 
 		var next = function () {
 			idx++;
-			if (idx < array.length && this.activeAsyncProcesses[id]) {
+			if (idx < array.length && activeAsyncProcesses[id]) {
 				iterator(array[idx], function () {
 					next.call();
 				});
-			} else if (this.activeAsyncProcesses[id]) {
-				delete this.activeAsyncProcesses[id];
+			} else if (activeAsyncProcesses[id]) {
+				delete activeAsyncProcesses[id];
 				if (onComplete) {
 					onComplete();
 				}
@@ -21,21 +22,30 @@ var Process = {
 		next();
 
 		return id;
-	},
-	cancelProcess : function (id) {
-		if (this.activeAsyncProcesses[id]) {
-			delete this.activeAsyncProcesses[id];
+	};
+
+	var cancelProcess = function (id) {
+		if (activeAsyncProcesses[id]) {
+			delete activeAsyncProcesses[id];
 		}
-	},
-	cancelAllProcesses : function () {
-		for (var key in this.activeAsyncProcesses) {
-			if (this.activeAsyncProcesses.hasOwnProperty(key)) {
+	};
+
+	var cancelAllProcesses = function () {
+		for (var key in activeAsyncProcesses) {
+			if (activeAsyncProcesses.hasOwnProperty(key)) {
 				cancelProcess(key);
 			}
 		}
-	},
-	isActive:function(id) {
-		return this.activeAsyncProcesses[id];
-	}
-}
+	};
 
+	var isActive = function (id) {
+		return activeAsyncProcesses[id];
+	};
+
+	return {
+		each : each,
+		cancelProcess : cancelProcess,
+		cancelAllProcesses : cancelAllProcesses,
+		isActive : isActive
+	};
+})();

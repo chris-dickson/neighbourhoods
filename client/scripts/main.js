@@ -4,24 +4,6 @@
 var directionsDisplay;
 var map;
 
-var geocodeLocations = function(places,success,error) {
-
-	var placesMap = {};
-
-	function onComplete() {
-		success(placesMap);
-	}
-
-	function onError(err) {
-		if (error) error(err);
-	}
-
-	Process.each(places,function(place,processNext) {
-		// TODO: contact google for the geocode
-		processNext();
-	},onComplete);
-}
-
 var initializeMap = function() {
 	directionsDisplay = new google.maps.DirectionsRenderer();
 
@@ -69,8 +51,10 @@ var initialize = function() {
 	$('#onAddLocationsBtn').click(function() {
 		var placesStr = $('#locationsTextarea').val();
 		var places = placesStr.split('\n');
-		geocodeLocations(places,function(placeMap) {
+		Geocoder.geocodeList(places,function(placeMap) {
 			// TODO: save in db
+			var ibreak = 0;
+			ibreak++;
 		});
 	});
 };
