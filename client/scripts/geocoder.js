@@ -1,12 +1,30 @@
 var Geocoder = (function () {
 
+	var _apiKey = null;
+
 	var _initializeModule = function() {
-		// TODO: create the google geocode object here
+		$.get('/geocoderkey').then(function(key) {
+			_apiKey = key;
+		});
 	};
 
 	var geocode = function(place,success,error) {
 		// TODO:  geocode and return!
-		success();
+		if (!_apiKey) {
+			error('No API key has been set');
+			return;
+		}
+		var url = 'https://maps.googleapis.com/maps/api/geocode/json?' +
+			'colloquial_area=' + encodeURIComponent(place) + '&key=' + _apiKey;
+
+		$.get(url).then(
+			function(response) {
+				// TODO:  parse it!
+			},
+			function(err) {
+				if (error) error(err);
+			}
+		);
 	};
 
 	var geocodeList = function(places,success,error) {

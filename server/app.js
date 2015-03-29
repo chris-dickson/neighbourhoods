@@ -4,6 +4,7 @@ var url = require('url');
 var config = require('./modules/config');
 var db_init = require('./modules/db_init');
 var Neighbourhoods = require('./modules/rest/neighbourhoods');
+var Geocoder = require('./modules/rest/geocoder');
 
 
 // Setup server
