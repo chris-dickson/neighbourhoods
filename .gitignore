@@ -2,3 +2,4 @@
 .DS_STORE
 /node_modules
 /server/node_modules
+server/config.js

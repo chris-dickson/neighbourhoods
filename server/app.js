@@ -34,7 +34,11 @@ app.get('/neighbourhoods',function(req,res) {
 		console.warn(err);
 		res.end(JSON.stringify(defaultResponse));
 	});
-})
+});
+
+app.get('/geocoderkey',function(req,res) {
+	res.end(JSON.string(Geocoder.getKey()));
+});
 //
 //// Setup routes
 //app.get('/stations', function(req,res) {
