@@ -17,7 +17,7 @@ var getAll = function(success,error) {
 			success(rows);
 		}
 
-		conn.query('SELECT * FROM ' + TABLE_NAME +';', function(err, rows, fields) {
+		conn.query('SELECT * FROM ' + TABLE_NAME +' ORDER BY name ASC;', function(err, rows, fields) {
 			onSuccess(rows);
 		});
 	});

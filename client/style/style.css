@@ -4,10 +4,19 @@ body { height: 100%; margin: 0; padding: 0 }
     height:50%;
 }
 #controls-canvas {
-    background-color:#efefef
+    overflow: scroll;
+    max-height: 50%;
 }
 
 .add-locations-textarea {
     width:100%;
     height:200px;
+}
+
+.ajaxLoader {
+    width: 100%;
+    height:100%;
+    position:absolute;
+    top:0;
+    left:0;
 }

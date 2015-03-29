@@ -22,7 +22,10 @@ var Geocoder = (function () {
 
 		$.get(url).then(
 			function(response) {
-				// TODO:  parse it!
+				if (response.status !== 'OK') {
+					var ibreak = 0;
+					ibreak++;
+				}
 				if (response && response.results && response.results.length) {
 					success({
 						lat : response.results[0].geometry.location.lat,
@@ -36,7 +39,7 @@ var Geocoder = (function () {
 		);
 	};
 
-	var geocodeList = function(places,bounds,success,error) {
+	var geocodeList = function(places,bounds,success,error,progress) {
 
 		var placesMap = {};
 
@@ -44,19 +47,36 @@ var Geocoder = (function () {
 			success(placesMap);
 		}
 
-		function onError(err) {
-			if (error) error(err);
-		}
+		var total = places.length;
+		var processed = 0;
+		progress(0);
 
-		Process.each(places,function(place,processNext) {
+		var lastRequest = new Date().getTime();
+		var pid = Process.each(places,function(place,processNext) {
+
+			function throttleNext() {
+				var currentTime = new Date().getTime();
+				if (currentTime-lastRequest < 250) {
+					setTimeout(function() {
+						throttleNext();
+					},250);
+				} else {
+					lastRequest = currentTime;
+					processed++;
+					progress(processed/total);
+					processNext();
+				}
+			}
+
 
 			function onGeocodeSuccess(result) {
 				placesMap[place] = result;
-				processNext();
+				throttleNext();
 			}
 
 			function onGeocodeError(err) {
-				processNext();
+				Process.cancelProcess(pid);
+				if (error) error(err);
 			}
 
 			geocode(place,bounds,onGeocodeSuccess,onGeocodeError);

@@ -3,6 +3,29 @@
  */
 var directionsDisplay;
 var map;
+var markers = [];
+
+// Add a marker to the map and push to the array.
+var addMarker = function(location,title) {
+	var marker = new google.maps.Marker({
+		position: location,
+		map: map,
+		title : title
+	});
+	markers.push(marker);
+}
+
+// Removes the markers from the map, but keeps them in the array.
+var clearMarkers = function() {
+	markers = [];
+}
+
+// Sets the map on all markers in the array.
+var updateMarkers = function() {
+	for (var i = 0; i < markers.length; i++) {
+		markers[i].setMap(map);
+	}
+}
 
 var initializeMap = function() {
 	directionsDisplay = new google.maps.DirectionsRenderer();
@@ -39,43 +62,59 @@ var initializeMap = function() {
 	map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 	map.setOptions({styles : styleArray});
 	directionsDisplay.setMap(map);
+	refresh();
+}
+
+var refresh = function() {
+	$('#locationTable').bootstrapTable('refresh');
+}
+
+var onLoadSuccess = function() {
+	var data = $('#locationTable').bootstrapTable('getData');
+	clearMarkers();
+	data.forEach(function(row) {
+		addMarker(new google.maps.LatLng(row.lat,row.lng), row.name);
+	});
+	updateMarkers();
 }
 
 var initialize = function() {
+
 	initializeMap();
 
+	$('#locationTable').on('load-success.bs.table', onLoadSuccess);
 	$('#addLocations').click(function() {
 		$('#addLocationsModal').modal()
+	});
+
+	$('#refreshLocations').click(function() {
+		refresh();
 	});
 
 	$('#onAddLocationsBtn').click(function() {
 		var placesStr = $('#locationsTextarea').val();
 		var places = placesStr.split('\n');
 
-		var torontoBounds = {
-			northeast : {
-				lat : 43.8554579,
-				lng : -79.1161932
-			},
-			southwest : {
-				lat : 43.5810846,
-				lng : -79.639219
-			}
-		};
-
-		Geocoder.geocodeList(places,torontoBounds,function(placeMap) {
+		AjaxLoader.show();
+		Geocoder.geocodeList(places,null,function(placeMap) {
+			AjaxLoader.hide();
 			$.ajax({
 				method: 'POST',
 				url: '/neighbourhoods',
 				data: placeMap
 			}).then(
 				function() {
-					// TODO: update table
+					refresh();
 				},
 				function(err) {
-					// TODO:  err?
+					alert(err);
 				}
 			)
+		}, function(err) {
+			AjaxLoader.hide();
+			alert(err);
+		}, function(progress) {
+			AjaxLoader.progress(progress);
 		});
 	});
 };
