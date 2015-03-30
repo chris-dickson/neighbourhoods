@@ -85,6 +85,16 @@ var add = function(placeMap,success,error) {
 	});
 }
 
+var addPlace = function(name,lat,lng,success,error) {
+    var map = {};
+    map[name] = {
+        lat : lat,
+        lng : lng
+    };
+    add(map,success,error);
+};
+
 module.exports.TABLE_NAME = TABLE_NAME;
 module.exports.getAll = getAll;
 module.exports.add = add;
+module.exports.addPlace = addPlace;

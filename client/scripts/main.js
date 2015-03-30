@@ -63,11 +63,49 @@ var initializeMap = function() {
 	map.setOptions({styles : styleArray});
 	directionsDisplay.setMap(map);
 	refresh();
+    google.maps.event.addListener(map, "rightclick", onRightClick);
 }
 
 var refresh = function() {
 	$('#locationTable').bootstrapTable('refresh');
-}
+};
+
+var onRightClick = function(event) {
+    var lat = event.latLng.lat();
+    var lng = event.latLng.lng();
+    // populate yor box/field with lat, lng
+    $('#customLocationName').val('');
+    $('#addCustomLocationModal').modal();
+    $('#customLat').text(lat);
+    $('#customLng').text(lng);
+};
+
+var onAddCustomLocation = function() {
+    var name = $('#customLocationName').val();
+    if (name) {
+        name = name.trim();
+        if (name !== '') {
+            var lat = $('#customLat').text();
+            var lng = $('#customLng').text();
+            $.ajax({
+                type:'post',
+                url:'/customlocation',
+                data:{
+                    name:name,
+                    lat:lat,
+                    lng:lng
+                }
+            }).then(
+                function(response) {
+                    refresh();
+                },
+                function(err) {
+                    alert(err);
+                }
+            );
+        }
+    }
+};
 
 var onLoadSuccess = function() {
 	var data = $('#locationTable').bootstrapTable('getData');
@@ -90,6 +128,10 @@ var initialize = function() {
 	$('#refreshLocations').click(function() {
 		refresh();
 	});
+
+    $('#onAddCustomLocationsBtn').click(function() {
+        onAddCustomLocation();
+    })
 
 	$('#onAddLocationsBtn').click(function() {
 		var placesStr = $('#locationsTextarea').val();

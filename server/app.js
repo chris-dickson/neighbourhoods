@@ -49,6 +49,18 @@ app.post('/neighbourhoods',function(req,res) {
 app.get('/geocoderkey',function(req,res) {
 	res.end(JSON.stringify(Geocoder.getKey()));
 });
+
+app.post('/customlocation',function(req,res) {
+    var data = req.body;
+    var name = data.name;
+    var lat = data.lat;
+    var lng = data.lng;
+    Neighbourhoods.addPlace(name,lat,lng,function() {
+        res.send('success');
+    },function (err) {
+        res.status(500).send(err);
+    })
+})
 //
 //// Setup routes
 //app.get('/stations', function(req,res) {
