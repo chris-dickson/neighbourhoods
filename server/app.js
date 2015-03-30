@@ -12,7 +12,7 @@ var RawResponses = require('./modules/rest/rawresponses');
 // Setup server
 var app = express();
 
-app.use(express.static('client'));
+app.use(express.static(config.clientRoot));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended : true}));
 
