@@ -48,17 +48,16 @@ app.get('/neighbourhoods',function(req,res) {
             existingPairs.forEach(function (pair) {
                 pairingSummary[pair.source] = pairingSummary[pair.source] + 1;
             });
+			Object.keys(pairingSummary).forEach(function(name) {
+				pairingSummary[name] = Math.round(100*(pairingSummary[name] / (rows.length-1))) + '%';
+			});
+
+			rows.forEach(function(place) {
+				place.percentPaired = pairingSummary[place.name];
+			});
+
+			res.end(JSON.stringify(rows))
         },onError);
-
-        Object.keys(pairingSummary).forEach(function(name) {
-            pairingSummary[name] = (pairingSummary[name] / (rows.length-1)) + '%';
-        });
-
-        rows.forEach(function(place) {
-            place.percentPaired = pairingSummary[place.name];
-        });
-
-		res.end(JSON.stringify(rows))
 	}, onError);
 });
 
@@ -158,24 +157,3 @@ app.post('/rawresponses',function(req,res) {
         res.status(500).send(err);
     })
 });
-
-app.get('/directions',function(req,res) {
-    var url = 'https://maps.googleapis.com/maps/api/directions/json?';
-    for (var i = 0; i < Object.keys(req.query).length-1; i++) {
-        var key = Object.keys(req.query)[i];
-        var value = req.query[Object.keys(req.query)[i]];
-        url += (key + '=' + value + '&');
-    }
-
-    i = Object.keys(req.query).length-1;
-    var key = Object.keys(req.query)[i];
-    var value = req.query[Object.keys(req.query)[i]];
-    url += (key + '=' + value);
-
-
-    http.get(url,function(response) {
-        res.end(response);
-    }).on('error',function(e) {
-        res.status(500).end(JSON.stringify(e));
-    });
-})

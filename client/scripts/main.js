@@ -110,20 +110,17 @@ var resumePairing = function() {
 
 
             Directions.get(request.source,request.destination,function(response) {
-                if (response.status === 'OK') {
-                    $.ajax({
-                        url: '/rawresponses',
-                        data: {
-                            source : request.sourceId,
-                            destination : request.destinationId,
-                            response : response
-                        }
-                    }).then(function() {
-                        // Hurrary!
-                    },onError)
-                } else {
-                    onError(response);
-                }
+				$.ajax({
+					url: '/rawresponses',
+					type : 'POST',
+					data: {
+						source : request.sourceId,
+						destination : request.destinationId,
+						response : response
+					}
+				}).then(function() {
+					refresh();
+				},onError)
             },onError);
         };
 
