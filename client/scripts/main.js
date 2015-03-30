@@ -107,6 +107,29 @@ var onAddCustomLocation = function() {
     }
 };
 
+var onDelete = function() {
+    var id = $(this).attr('data-id');
+    if (id) {
+        id = id.trim();
+        if (id !== '') {
+            $.ajax({
+                url : 'neighbourhoods',
+                type : 'DELETE',
+                data : {
+                    id : id
+                }
+            }).then(
+                function() {
+                    refresh();
+                },
+                function(err) {
+                    alert(err);
+                }
+            )
+        }
+    }
+};
+
 var onLoadSuccess = function() {
 	var data = $('#locationTable').bootstrapTable('getData');
 	clearMarkers();
@@ -114,6 +137,15 @@ var onLoadSuccess = function() {
 		addMarker(new google.maps.LatLng(row.lat,row.lng), row.name);
 	});
 	updateMarkers();
+
+    var deletePlaceholders = $('#locationTable').find('.delete-btn');
+    for (var i = 1; i < deletePlaceholders.length; i++) {// skip the header!
+        var id = $(deletePlaceholders[i]).parent().find('.place-id').text();
+        var btn = $('<button class="btn btn-default btn-small" data-id="' + id + '"><span class="glyphicon glyphicon-remove"></button>');
+        $(deletePlaceholders[i]).replaceWith(btn);
+        btn.click(onDelete);
+    }
+
 }
 
 var initialize = function() {
