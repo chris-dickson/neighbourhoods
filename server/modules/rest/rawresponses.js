@@ -24,7 +24,6 @@ var get = function(success,error) {
 			' INNER JOIN ' + NEIGHBOURHOOD_TABLE + ' as t1 on ' + TABLE_NAME + '.source = t1.id ' +
 			' INNER JOIN ' + NEIGHBOURHOOD_TABLE + ' as t2 on ' + TABLE_NAME + '.destination = t2.id';
 
-		console.log(sql);
         conn.query(sql, function(err, rows, fields) {
             if (err) {
                 onError(err);
@@ -51,6 +50,7 @@ var add = function(source,destination,response,success,error) {
 
 		var responseStr = JSON.stringify(response);
 
+		console.log('Adding: \n\tsource:' + source + '\n\tdestination:' + destination + '\n\tresponse:' + responseStr + '\n');
         var sql = 'INSERT INTO ' + TABLE_NAME + ' (id,source,destination,response) ' +
             'VALUES (' + conn.escape(id) + ',' + conn.escape(source) + ',' + conn.escape(destination) + ',' + conn.escape(responseStr) + ')';
         conn.query(sql,function(err) {
