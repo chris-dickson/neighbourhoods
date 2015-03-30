@@ -46,6 +46,15 @@ app.post('/neighbourhoods',function(req,res) {
 	});
 });
 
+app.delete('/neighbourhoods',function(req,res) {
+    var id = req.body.id;
+    Neighbourhoods.deletePlace(id,function() {
+        res.send('success');
+    }, function(err) {
+        res.status(500).send(err);
+    });
+});
+
 app.get('/geocoderkey',function(req,res) {
 	res.end(JSON.stringify(Geocoder.getKey()));
 });

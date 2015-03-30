@@ -18,7 +18,11 @@ var getAll = function(success,error) {
 		}
 
 		conn.query('SELECT * FROM ' + TABLE_NAME +' ORDER BY name ASC;', function(err, rows, fields) {
-			onSuccess(rows);
+            if (err) {
+                onError(err);
+            } else {
+                onSuccess(rows);
+            }
 		});
 	});
 };
@@ -83,7 +87,30 @@ var add = function(placeMap,success,error) {
 		},onComplete);
 
 	});
-}
+};
+
+var deletePlace = function(id,success,error) {
+    connectionPool.open(function(conn) {
+
+        function onError(err) {
+            connectionPool.close(conn);
+            if (error) error(err);
+        }
+
+        function onSuccess(rows) {
+            connectionPool.close(conn);
+            success(rows);
+        }
+
+        conn.query('DELETE FROM ' + TABLE_NAME +' WHERE id=' + conn.escape(id), function(err) {
+            if (err) {
+                onError(err);
+            } else {
+                onSuccess();
+            }
+        });
+    });
+};
 
 var addPlace = function(name,lat,lng,success,error) {
     var map = {};
@@ -98,3 +125,4 @@ module.exports.TABLE_NAME = TABLE_NAME;
 module.exports.getAll = getAll;
 module.exports.add = add;
 module.exports.addPlace = addPlace;
+module.exports.deletePlace = deletePlace;
