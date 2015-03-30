@@ -70,6 +70,13 @@ var refresh = function() {
 	$('#locationTable').bootstrapTable('refresh');
 };
 
+var resumePairing = function() {
+    $.get('/missingpairs').then(function(missingPairInfo) {
+        var ibreak = 0;
+        ibreak++;
+    });
+}
+
 var onRightClick = function(event) {
     var lat = event.latLng.lat();
     var lng = event.latLng.lng();
@@ -160,6 +167,10 @@ var initialize = function() {
 	$('#refreshLocations').click(function() {
 		refresh();
 	});
+
+    $('#resumePairing').click(function() {
+        resumePairing();
+    });
 
     $('#onAddCustomLocationsBtn').click(function() {
         onAddCustomLocation();

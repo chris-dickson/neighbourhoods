@@ -5,6 +5,7 @@ var config = require('./modules/config');
 var db_init = require('./modules/db_init');
 var Neighbourhoods = require('./modules/rest/neighbourhoods');
 var Geocoder = require('./modules/rest/geocoder');
+var RawResponses = require('./modules/rest/rawresponses');
 
 
 // Setup server
@@ -28,13 +29,36 @@ var server = app.listen(config.port, function() {
 
 
 app.get('/neighbourhoods',function(req,res) {
-	var defaultResponse = [];
+
+    function onError(err) {
+        res.status(500).end(err);
+    }
+
+
 	Neighbourhoods.getAll(function(rows) {
+
+
+        var pairingSummary = {};
+        rows.forEach(function (place) {
+            pairingSummary[place.name] = 0;
+        });
+
+        RawResponses.get(function (existingPairs) {
+            existingPairs.forEach(function (pair) {
+                pairingSummary[pair.source] = pairingSummary[pair.source] + 1;
+            });
+        },onError);
+
+        Object.keys(pairingSummary).forEach(function(name) {
+            pairingSummary[name] = (pairingSummary[name] / (rows.length-1)) + '%';
+        });
+
+        rows.forEach(function(place) {
+            place.percentPaired = pairingSummary[place.name];
+        });
+
 		res.end(JSON.stringify(rows))
-	}, function(err) {
-		console.warn(err);
-		res.end(JSON.stringify(defaultResponse));
-	});
+	}, onError);
 });
 
 app.post('/neighbourhoods',function(req,res) {
@@ -69,55 +93,67 @@ app.post('/customlocation',function(req,res) {
     },function (err) {
         res.status(500).send(err);
     })
-})
-//
-//// Setup routes
-//app.get('/stations', function(req,res) {
-//	stations.get(function(stations) {
-//		res.end(JSON.stringify(stations));
-//	});
-//});
-//
-//app.get('/knownroutes', function(req,res) {
-//	var url_parts = url.parse(req.url, true);
-//	var query = url_parts.query;
-//	var table = query.normalized == 'true' ? 'normalizedroutes' : 'routes';
-//	console.log('Reqesting all known routes');
-//	routes.getKnownRouteConnectivity(table,function(knownRoutes) {
-//		console.log('Serving all known ' + table);
-//		res.end(JSON.stringify(knownRoutes));
-//	});
-//});
-//
-//
-//app.post('/routes', function(req,res) {
-//	var body = req.body;
-//	var table = body.normalized == true ? 'normalizedroutes' : 'routes';
-//
-//	if (body.points instanceof Object) {
-//		var pointsArray = [];
-//		for (var idx in body.points) {
-//			if (body.points.hasOwnProperty(idx)) {
-//				pointsArray.push(body.points[idx]);
-//			}
-//		}
-//		body.points = pointsArray;
-//	}
-//	console.log('Adding ' + table + ' for ' + body.source + ' to ' + body.destination + ' (' + pointsArray.length + ' points)');
-//	routes.postRoute(body.source, body.destination, body.points, table, function() {
-//		console.log('Added ' + table + ' for ' + body.source + ' to ' + body.destination + ' (' + pointsArray.length + ' points)');
-//		res.code = 201;
-//		res.end();
-//	});
-//});
-//
-//app.get('/routes', function(req,res) {
-//	var url_parts = url.parse(req.url, true);
-//	var query = url_parts.query;
-//	var table = query.normalized == true ? 'normalizedroutes' : 'routes';
-//	console.log('Requesting ' + table + ' for ' + query.source + ' to ' + query.destination);
-//	routes.getRoute(query.source, query.destination, table, function(points) {
-//		console.log('Serving ' + table + ' for ' + query.source + ' to ' + query.destination);
-//		res.end(JSON.stringify(points));
-//	});
-//});
+});
+
+app.get('/missingpairs',function(req,res) {
+
+    function onError(err) {
+        res.status(500).end();
+    }
+
+
+    Neighbourhoods.getAll(function(places) {
+        var existingSourceToDestination = {};
+        places.forEach(function(place) {
+            existingSourceToDestination[place.name] = {};
+        });
+
+        RawResponses.get(function(existingPairs) {
+            existingPairs.forEach(function(pair) {
+                existingSourceToDestination[pair.source][pair.destination] = true;
+            });
+
+            var toFetchSourceToDest = {};
+            for (var i = 0; i < places.length; i++) {
+                for (var j = 0; j < places.length; j++) {
+                    if (i == j || existingSourceToDestination[places[i].name][places[j].name]) {
+                        continue;
+                    } else {
+                        var descriptor = toFetchSourceToDest[places[i].name];
+                        if (!descriptor) {
+                            descriptor = {
+                                name : places[i].name,
+                                id : places[i].id,
+                                lat : places[i].lat,
+                                lng : places[i].lng,
+                                destinations : []
+                            };
+                            toFetchSourceToDest[places[i].name] = descriptor;
+                        }
+                        toFetchSourceToDest[places[i].name].destinations.push({
+                            name : places[j].name,
+                            id : places[j].id,
+                            lat : places[j].lat,
+                            lng : places[j].lng
+                        });
+                    }
+                }
+            }
+            res.end(JSON.stringify(toFetchSourceToDest));
+        },onError)
+    },onError);
+});
+
+
+
+app.post('/rawresponses',function(req,res) {
+    var data = req.body;
+    var source = data.source;
+    var destination = data.destination;
+    var responseText = data.response;
+    RawResponses.add(source,destination,responseText,function() {
+        res.send('success');
+    }, function(err) {
+        res.status(500).send(err);
+    })
+});
