@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var url = require('url');
+var http = require('http');
 var config = require('./modules/config');
 var db_init = require('./modules/db_init');
 var Neighbourhoods = require('./modules/rest/neighbourhoods');
@@ -157,3 +158,24 @@ app.post('/rawresponses',function(req,res) {
         res.status(500).send(err);
     })
 });
+
+app.get('/directions',function(req,res) {
+    var url = 'https://maps.googleapis.com/maps/api/directions/json?';
+    for (var i = 0; i < Object.keys(req.query).length-1; i++) {
+        var key = Object.keys(req.query)[i];
+        var value = req.query[Object.keys(req.query)[i]];
+        url += (key + '=' + value + '&');
+    }
+
+    i = Object.keys(req.query).length-1;
+    var key = Object.keys(req.query)[i];
+    var value = req.query[Object.keys(req.query)[i]];
+    url += (key + '=' + value);
+
+
+    http.get(url,function(response) {
+        res.end(response);
+    }).on('error',function(e) {
+        res.status(500).end(JSON.stringify(e));
+    });
+})

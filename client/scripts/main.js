@@ -71,9 +71,65 @@ var refresh = function() {
 };
 
 var resumePairing = function() {
-    $.get('/missingpairs').then(function(missingPairInfo) {
-        var ibreak = 0;
-        ibreak++;
+    $.get('/missingpairs').then(function(response) {
+        var missingPairInfo = JSON.parse(response);
+        var requestQueue = [];
+
+        Object.keys(missingPairInfo).forEach(function(name) {
+            var info = missingPairInfo[name];
+            var source = {
+                lat : info.lat,
+                lng : info.lng
+            };
+            info.destinations.forEach(function(destinationInfo) {
+                var destination = {
+                    lat : destinationInfo.lat,
+                    lng : destinationInfo.lng
+                };
+
+                requestQueue.push({
+                    sourceId : info.id,
+                    destinationId : destinationInfo.id,
+                    source : source,
+                    destination : destination
+                });
+            });
+        });
+
+        var MS_PER_DAY = 1000 * 60 * 60 * 24;
+        var REQUESTS_PER_DAY = 2450;
+        var DELAY = MS_PER_DAY/REQUESTS_PER_DAY;
+
+        var processNext = function() {
+            var request = requestQueue.shift();
+
+            function onError(err) {
+                console.log(JSON.stringify(err));
+                requestQueue.enqueue(request);
+            }
+
+
+            Directions.get(request.source,request.destination,function(response) {
+                if (response.status === 'OK') {
+                    $.ajax({
+                        url: '/rawresponses',
+                        data: {
+                            source : request.sourceId,
+                            destination : request.destinationId,
+                            response : response
+                        }
+                    }).then(function() {
+                        // Hurrary!
+                    },onError)
+                } else {
+                    onError(response);
+                }
+            },onError);
+        };
+
+
+        processNext();
+        setInterval(processNext,DELAY)
     });
 }
 

@@ -22,12 +22,13 @@ var Directions = (function () {
 
         var originStr = source.lat + ',' + source.lng;
         var destinationStr = destination.lat + ',' + destination.lng;
-        var arrivalTimeStr = new Date(2015, 5, 22, 9, 0, 0, 0);   // June 22nd 2015 @ 9am
+        var arrivalTimeStr = Date.parse('next monday').set({
+            hour : 9
+        }).getTime().toString();
+        arrivalTimeStr = arrivalTimeStr.substring(0,arrivalTimeStr.length-4);
 
-        var url = 'https://maps.googleapis.com/maps/api/directions/json?' +
-            'origin=' + originStr + '&destination=' + destinationStr + '&mode=transit&arrival_time=' + arrivalTimeStr + '&key=' + _apiKey;
 
-        $.get(url).then(function(response) {
+        $.get('/directions?' + 'origin=' + originStr + '&destination=' + destinationStr + '&mode=transit&arrival_time=' + arrivalTimeStr + '&key=' + _apiKey ).then(function(response) {
             if (response.status !== 'OK') {
                 onError(response.message);
             }
@@ -37,7 +38,7 @@ var Directions = (function () {
                     lng : response.results[0].geometry.location.lng
                 });
             }
-        }, onError);
+        }, onError)
     };
 
     _initializeModule();
