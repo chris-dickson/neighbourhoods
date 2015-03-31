@@ -99,12 +99,18 @@ var resumePairing = function() {
         var MS_PER_DAY = 1000 * 60 * 60 * 24;
         var REQUESTS_PER_DAY = 2450;
         var DELAY = MS_PER_DAY/REQUESTS_PER_DAY;
+		var fails = 0;
 
         var processNext = function() {
             var request = requestQueue.shift();
 
             function onError(err) {
                 console.log(JSON.stringify(err));
+				fails++;
+				if (fails >= 10) {
+					clearInterval(intId);
+					alert('Failed more than 10 times.   Bailing!');
+				}
                 requestQueue.enqueue(request);
             }
 
@@ -126,7 +132,7 @@ var resumePairing = function() {
 
 
         processNext();
-        setInterval(processNext,DELAY)
+        var intId = setInterval(processNext,DELAY)
     });
 }
 
